@@ -39,4 +39,8 @@ function fibonacci(n) {
     return a;
 }
 
-main();
+if (require.main === module) {
+    main();
+}
+
+module.exports = { fibonacci };

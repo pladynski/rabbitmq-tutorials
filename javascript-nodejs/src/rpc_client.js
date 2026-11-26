@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
-const amqp = require('amqplib');
+const { GraftConfig, FibonacciService } = require('@graft/npm-rabbitmq-node-tutorial');
+
+GraftConfig.host = process.env.RPC_SERVER_GRAFT_HOST || 'ws://localhost:9090/ws';
 
 const args = process.argv.slice(2);
 
@@ -10,37 +12,14 @@ if (args.length === 0) {
 }
 
 async function main() {
-    const connection = await amqp.connect('amqp://localhost');
-    const channel = await connection.createChannel();
-
-    const correlationId = generateUuid();
     const num = parseInt(args[0]);
 
     console.log(' [x] Requesting fib(%d)', num);
 
-    const result = await new Promise((resolve) => {
-        // Consume from the Direct Reply-to pseudo-queue (noAck is mandatory)
-        channel.consume('amq.rabbitmq.reply-to', (msg) => {
-            if (msg.properties.correlationId === correlationId) {
-                resolve(msg.content.toString());
-            }
-        }, { noAck: true });
-
-        channel.sendToQueue('rpc_queue',
-            Buffer.from(num.toString()), {
-                correlationId: correlationId,
-                replyTo: 'amq.rabbitmq.reply-to'
-            });
-    });
+    const result = (await FibonacciService.fib(num)).toString();
 
     console.log(' [.] Got %s', result);
-    await connection.close();
-}
-
-function generateUuid() {
-    return Math.random().toString() +
-        Math.random().toString() +
-        Math.random().toString();
+    process.exit(0);
 }
 
 main();

@@ -2,7 +2,12 @@
   "name": "rabbitmq-node-tutorial",
   "version": "1.0.0",
   "description": "RabbitMQ amqplib tutorial ",
+  "main": "./src/fibonacci_service.js",
+  "scripts": {
+    "rpc_server:graft": "gg --runtime nodejs --modules ./package.json --port ${GG_PORT:-9090} --httpPort ${GG_HTTP_PORT:-9091}"
+  },
   "dependencies": {
+    "@graft/npm-rabbitmq-node-tutorial": "^1.0.0",
     "amqplib": "0.10.9",
     "js-beautify": "^1.15.4",
     "url-parse": ">=1.5.9"
